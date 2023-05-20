@@ -1,0 +1,41 @@
+syntax = "proto3";
+package my_service;
+option go_package = "grpc-gateway/myservice/proto";
+import "myservice/proto/annotations.proto";
+
+message SimpleMessage{
+  string id = 1;
+  int64 num = 2;
+  string lang = 3;
+  InnerMsg msg = 4;
+}
+
+message InnerMsg{
+  string f1 = 1;
+  string f2 = 2;
+}
+
+message UploadRequest{
+  int64 size = 1;
+  bytes content = 2;
+}
+
+message UploadResponse{
+  string  path = 1;
+}
+
+service MyService{
+  rpc Echo (SimpleMessage) returns(SimpleMessage){
+    option (google.api.http) = {
+      post:"/v1/echo/{id}"
+      additional_bindings:{
+        get:"/v1/echo/{lang}"
+      }
+      additional_bindings:{
+        put:"/v1/echo"
+        body:"*"
+      }
+    };
+  }
+  rpc EchoUpload(stream UploadRequest) returns(UploadResponse){}
+}
